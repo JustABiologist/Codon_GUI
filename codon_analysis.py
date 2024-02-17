@@ -5,6 +5,7 @@ from Bio.Seq import Seq
 def aggregate_codon_counts(gb_file, keyword):
     """Aggregate codon counts for all entries with a specific keyword in their 'note', across all feature types."""
     codon_counts = Counter()
+    sequence_counts = 0
     found = False  # Debugging flag
     for record in SeqIO.parse(gb_file, "genbank"):
         for feature in record.features:
@@ -13,13 +14,14 @@ def aggregate_codon_counts(gb_file, keyword):
                 # Only process features with a sequence (e.g., 'CDS', 'gene', but open to others with sequences)
                 if len(feature.location) % 3 == 0:  # Check if divisible by 3 to ensure it's likely coding
                     sequence = str(feature.extract(record.seq))
+                    sequence_counts += 1
                     for i in range(0, len(sequence), 3):
                         codon = sequence[i:i+3].upper()
                         if len(codon) == 3:
                             codon_counts[codon] += 1
     if not found:
         print(f"No features with keyword '{keyword}' in 'note' were found.")  # Debugging message
-    return codon_counts
+    return codon_counts, sequence_counts
 
 def compute_codon_usage_from_counts(codon_counts):
     """Compute codon usage frequencies from aggregated codon counts."""
@@ -41,9 +43,9 @@ def get_codon_counts_for_gene_by_locus(gb_file, locus_tag):
                 return codon_counts
     return Counter()
 
-def compare_codon_usage(base_codon_usage, gene_codon_usage):
+def compare_codon_usage(base_codon_usage, gene_codon_usage, n_seq):
     """Prints the comparison of codon usage between the baseline and a gene, including amino acid translations, sorted by amino acid."""
-    print("Codon\tAmino Acid\tBaseline Usage\tGene Usage")
+    print(f"Codon\tAmino Acid\tBaseline Usage\tGene Usage\t{n_seq} number of sequences in Baseline")
     all_codons = set(base_codon_usage.keys()) | set(gene_codon_usage.keys())
 
     # Create a list of tuples (amino_acid, codon) for sorting

@@ -88,11 +88,11 @@ def on_submit():
     selected_locus = locus_entry.get()
     selected_gb_file = gb_file_path.get()
     # Call your processing functions here using the selected parameters
-    baseline_codon_counts = aggregate_codon_counts(selected_gb_file, selected_keyword)
+    baseline_codon_counts, n_sequs = aggregate_codon_counts(selected_gb_file, selected_keyword)
     baseline_codon_usage = compute_codon_usage_from_counts(baseline_codon_counts)
     gene_codon_counts = get_codon_counts_for_gene_by_locus(selected_gb_file, selected_locus)
     gene_codon_usage = compute_codon_usage_from_counts(gene_codon_counts)
-    compare_codon_usage(baseline_codon_usage, gene_codon_usage)
+    compare_codon_usage(baseline_codon_usage, gene_codon_usage, n_sequs)
     validate_codon_usage_percentages(baseline_codon_usage)
     validate_codon_usage_percentages(gene_codon_usage)
 
